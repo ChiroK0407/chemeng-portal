@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useMember } from '../../hooks/useMembers';
 import { Spinner } from '../../components/ui/Spinner';
-import { ArrowLeft, GraduationCap, Linkedin } from 'lucide-react';
+import { ArrowLeft, GraduationCap, Link as LinkIcon } from 'lucide-react';
 
 export default function MemberDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +46,7 @@ export default function MemberDetailPage() {
           </div>
           {member.linkedin_url && (
             <a href={member.linkedin_url} target="_blank" rel="noreferrer" className="p-2.5 bg-surface-50 dark:bg-surface-950 border border-surface-200 dark:border-surface-800 rounded-xl hover:text-blue-600 transition-colors">
-              <Linkedin className="w-5 h-5" />
+              <LinkIcon className="w-5 h-5" />
             </a>
           )}
         </div>

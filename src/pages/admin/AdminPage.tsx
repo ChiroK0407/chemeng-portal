@@ -9,10 +9,12 @@ import BlogsPanel from './panels/BlogsPanel';
 import OpportunitiesPanel from './panels/OpportunitiesPanel';
 import MembersPanel from './panels/MembersPanel';
 import ProjectsPanel from './panels/ProjectsPanel';
-import NotificationsPanel from './panels/NotificationsPanel';
+// NotificationsPanel intentionally not wired in — notifications only make
+// sense once there's a login system to target them per-user (a later
+// project phase). The backend table/routes are left in place, unused,
+// for whenever that's built.
 
 const TABS = [
-  { key: 'notifications', label: 'Notifications', Component: NotificationsPanel },
   { key: 'blogs', label: 'Blogs', Component: BlogsPanel },
   { key: 'opportunities', label: 'Opportunities', Component: OpportunitiesPanel },
   { key: 'members', label: 'Members', Component: MembersPanel },
@@ -54,7 +56,7 @@ function AdminLoginGate({ onLogin, error }: { onLogin: (password: string) => Pro
 
 export default function AdminPage() {
   const { isAdmin, isLoading, loginError, login, logout } = useAdminAuth();
-  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]['key']>('notifications');
+  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]['key']>('blogs');
 
   if (isLoading) return <PageSpinner />;
   if (!isAdmin) return <AdminLoginGate onLogin={login} error={loginError} />;
