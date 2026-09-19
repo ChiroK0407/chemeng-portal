@@ -35,6 +35,7 @@ ALLOWED_EXTENSIONS = {
     '.md',
     '.py',
     '.csv',
+    '.zip',
 }
 
 COUNTER_FILE = '.run_counter_zip'

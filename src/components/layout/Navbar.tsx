@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { Button } from '@/components/ui/Button';
 import { Menu, X, Sun, Moon, FlaskConical } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
 import { cn }       from '@/utils/cn'
@@ -27,7 +28,7 @@ export function Navbar() {
           <FlaskConical className="w-6 h-6 text-primary-600" />
           <span className="text-gradient">ChemEng Portal</span>
         </Link>
-
+        
         {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-1">
           {NAV_LINKS.map(link => (
@@ -47,6 +48,15 @@ export function Navbar() {
         </div>
 
         {/* Desktop actions */}
+        <div className="flex items-center gap-4">
+          {/* Admin Access Button */}
+          <Link to="/admin">
+            <Button variant="outline" size="sm">
+              Admin Access
+            </Button>
+          </Link>
+        </div>
+        
         <div className="hidden lg:flex items-center gap-2">
           <button
             onClick={toggleTheme}
