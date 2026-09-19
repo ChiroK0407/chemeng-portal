@@ -12,6 +12,8 @@ IGNORE_DIRS = {
     'build',
     'venv_build',
     'venv',
+    'ZIP',
+    '.venv',
 }
 IGNORE_FILES = {
     'package-lock.json',
@@ -36,6 +38,7 @@ ALLOWED_EXTENSIONS = {
 }
 
 COUNTER_FILE = '.run_counter_zip'
+ZIP_DIR = Path('ZIP')
 
 
 def get_next_run_number():
@@ -126,7 +129,8 @@ def create_filtered_zip():
   # Included scope_type ('full' or 'selective') directly in the base name
   base_name = f'CHEM-ENG-PORTAL-STRUCTURE_RUN_{run_number}_{scope_type}_{timestamp_str}'
   staging_dir = Path(base_name)
-  output_zip = f'{base_name}.zip'
+  ZIP_DIR.mkdir(parents=True, exist_ok=True)
+  output_zip = ZIP_DIR / f'{base_name}.zip'
 
   # Create staging directory
   staging_dir.mkdir(parents=True, exist_ok=True)
@@ -168,7 +172,12 @@ def create_filtered_zip():
           copied_files_count += 1
 
     # 5. Compress staging directory into a Zip file
-    shutil.make_archive(base_name, 'zip', staging_dir)
+    shutil.make_archive(
+      str(output_zip.with_suffix('')),
+      'zip',
+      staging_dir.parent,
+      staging_dir.name,
+    )
 
     print(
         f'\n✅ Successfully zipped {copied_files_count} files into:'

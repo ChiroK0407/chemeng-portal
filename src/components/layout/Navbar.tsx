@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { Menu, X, Sun, Moon, FlaskConical, Bell } from 'lucide-react'
-import { useAuth }  from '@/context/AuthContext'
+import { Menu, X, Sun, Moon, FlaskConical } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
-import { Button }   from '@/components/ui/Button'
 import { cn }       from '@/utils/cn'
 
 const NAV_LINKS = [
@@ -17,7 +15,6 @@ const NAV_LINKS = [
 ]
 
 export function Navbar() {
-  const { user, signOut }          = useAuth()
   const { resolvedTheme, toggleTheme } = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -61,29 +58,6 @@ export function Navbar() {
               : <Moon className="w-5 h-5" />
             }
           </button>
-
-          {user ? (
-            <>
-              <Link to="/dashboard/notifications">
-                <button className="p-2 rounded-lg text-surface-500 hover:text-surface-700 hover:bg-surface-100 dark:hover:text-surface-300 dark:hover:bg-surface-800 transition-colors">
-                  <Bell className="w-5 h-5" />
-                </button>
-              </Link>
-              <Link to="/dashboard">
-                <Button size="sm" variant="secondary">Dashboard</Button>
-              </Link>
-              <Button size="sm" variant="ghost" onClick={signOut}>Sign out</Button>
-            </>
-          ) : (
-            <>
-              <Link to="/auth/login">
-                <Button size="sm" variant="ghost">Sign in</Button>
-              </Link>
-              <Link to="/auth/signup">
-                <Button size="sm">Join Now</Button>
-              </Link>
-            </>
-          )}
         </div>
 
         {/* Mobile toggle */}
@@ -114,22 +88,6 @@ export function Navbar() {
               {link.label}
             </NavLink>
           ))}
-          <div className="pt-2 flex gap-2">
-            {user ? (
-              <Button size="sm" variant="ghost" onClick={signOut} className="w-full">
-                Sign out
-              </Button>
-            ) : (
-              <>
-                <Link to="/auth/login" className="flex-1">
-                  <Button size="sm" variant="outline" className="w-full">Sign in</Button>
-                </Link>
-                <Link to="/auth/signup" className="flex-1">
-                  <Button size="sm" className="w-full">Join</Button>
-                </Link>
-              </>
-            )}
-          </div>
         </div>
       )}
     </header>
