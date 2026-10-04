@@ -42,6 +42,16 @@ export const errorHandler: ErrorRequestHandler = (
     message = `Missing required field${err.column ? `: ${err.column}` : '.'}`;
   }
 
+  // Log server-side regardless of status — this was previously silent,
+  // which meant a 500 gave you nothing to go on in the terminal. Always
+  // log unexpected (500) errors; log 4xx too but more tersely, since
+  // those are usually just user input mistakes, not worth a full stack.
+  if (statusCode >= 500) {
+    console.error(`[${req.method} ${req.originalUrl}]`, err);
+  } else {
+    console.warn(`[${req.method} ${req.originalUrl}] ${statusCode} ${code}: ${message}`);
+  }
+
   res.status(statusCode).json({
     success: false,
     message,

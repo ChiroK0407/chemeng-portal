@@ -6,6 +6,7 @@ import { Input } from '../../../components/ui/Input';
 import { Textarea } from '../../../components/ui/Textarea';
 import { Spinner } from '../../../components/ui/Spinner';
 import { Plus, Trash2, X, Power } from 'lucide-react';
+import { JsonUploadPrefill } from '../../../components/admin/JsonUploadPrefill';
 
 const emptyForm = { title: '', message: '', link: '' };
 
@@ -56,6 +57,10 @@ export default function NotificationsPanel() {
             <h3 className="font-bold text-sm">New Notification</h3>
             <button type="button" onClick={() => { setShowForm(false); setForm(emptyForm); }}><X className="w-4 h-4 text-surface-400" /></button>
           </div>
+          <JsonUploadPrefill
+            templateUrl="/templates/notification-template.json"
+            onLoad={(data) => setForm((prev) => ({ ...prev, ...data }))}
+          />
           <Input label="Title" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
           <Textarea label="Message" required value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
           <Input label="Link (optional, e.g. /blogs/some-post)" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} />

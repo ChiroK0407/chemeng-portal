@@ -1,14 +1,19 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAdminAuth } from '../../hooks/useAdminAuth';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { PageSpinner } from '../../components/ui/Spinner';
-import { Lock, LogOut } from 'lucide-react';
+import { Lock, LogOut, ArrowLeft } from 'lucide-react';
 
 import BlogsPanel from './panels/BlogsPanel';
 import OpportunitiesPanel from './panels/OpportunitiesPanel';
 import MembersPanel from './panels/MembersPanel';
 import ProjectsPanel from './panels/ProjectsPanel';
+import OrganisationsPanel from './panels/OrganisationsPanel';
+import EventsPanel from './panels/EventsPanel';
+import ResourcesPanel from './panels/ResourcesPanel';
+import QuizzesPanel from './panels/QuizzesPanel';
 // NotificationsPanel intentionally not wired in — notifications only make
 // sense once there's a login system to target them per-user (a later
 // project phase). The backend table/routes are left in place, unused,
@@ -19,6 +24,10 @@ const TABS = [
   { key: 'opportunities', label: 'Opportunities', Component: OpportunitiesPanel },
   { key: 'members', label: 'Members', Component: MembersPanel },
   { key: 'projects', label: 'Projects', Component: ProjectsPanel },
+  { key: 'organisations', label: 'Organisations', Component: OrganisationsPanel },
+  { key: 'events', label: 'Events', Component: EventsPanel },
+  { key: 'resources', label: 'Resources', Component: ResourcesPanel },
+  { key: 'quizzes', label: 'Quizzes', Component: QuizzesPanel },
 ] as const;
 
 function AdminLoginGate({ onLogin, error }: { onLogin: (password: string) => Promise<boolean>; error: string | null }) {
@@ -49,6 +58,12 @@ function AdminLoginGate({ onLogin, error }: { onLogin: (password: string) => Pro
           error={error || undefined}
         />
         <Button type="submit" className="w-full mt-5" isLoading={submitting}>Sign in</Button>
+        <Link
+          to="/"
+          className="mt-4 flex items-center justify-center gap-1.5 text-sm text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to home
+        </Link>
       </form>
     </div>
   );

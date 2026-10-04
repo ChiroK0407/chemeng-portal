@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import { authService } from '@/services/auth.service'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { APP_NAME } from '@/utils/constants'
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -46,7 +47,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 font-display font-bold text-xl">
             <FlaskConical className="w-7 h-7 text-primary-600" />
-            <span className="text-gradient">ChemEng Portal</span>
+            <span className="text-gradient">{APP_NAME}</span>
           </Link>
           <h1 className="mt-6 text-2xl font-display font-semibold text-surface-900 dark:text-surface-100">
             Reset your password

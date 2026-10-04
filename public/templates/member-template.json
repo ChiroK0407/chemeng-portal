@@ -1,0 +1,11 @@
+{
+  "fullName": "Dr. Ananya Sen",
+  "roleTitle": "Senior Process Engineer",
+  "category": "current",
+  "branch": "Chemical Engineering",
+  "bio": "Specialist in polymerization kinetics and industrial process design. Experienced in scaling lab‑scale processes to pilot and full‑scale operations.",
+  "photoUrl": "https://example.com/path/to/profile-photo.jpg",
+  "linkedinUrl": "https://www.linkedin.com/in/ananya-sen",
+  "isFeatured": true,
+  "status": "published"
+}

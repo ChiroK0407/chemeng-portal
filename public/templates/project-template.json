@@ -1,0 +1,9 @@
+{
+  "title": "Reactive Distillation Control Dashboard",
+  "description": "A web application for monitoring and controlling reactive distillation columns, featuring real‑time telemetry, alarm handling, and historical trend analysis.",
+  "coverImage": "https://example.com/path/to/project-cover.jpg",
+  "authorName": "Process Automation Team",
+  "techStack": "React; Node.js; Python; Docker; PostgreSQL",
+  "projectUrl": "https://example.com/projects/reactive-distillation-dashboard",
+  "status": "draft"
+}

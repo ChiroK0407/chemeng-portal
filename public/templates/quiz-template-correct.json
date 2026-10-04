@@ -1,0 +1,23 @@
+[
+  {
+    "question_text": "What is the unit of dynamic viscosity?",
+    "time_limit_seconds": 20,
+    "points": 1,
+    "options": ["Pa·s", "m²/s", "kg/m", "N/m²"],
+    "correct_index": 0
+  },
+  {
+    "question_text": "Bernoulli's equation is derived by applying conservation of which quantity along a streamline?",
+    "time_limit_seconds": 25,
+    "points": 1,
+    "options": ["Mass", "Energy", "Momentum", "Entropy"],
+    "correct_index": 1
+  },
+  {
+    "question_text": "For laminar flow in a pipe, the Darcy friction factor is proportional to which quantity?",
+    "time_limit_seconds": 25,
+    "points": 2,
+    "options": ["1 / Re", "Re", "Re\u00b2", "\u221aRe"],
+    "correct_index": 0
+  }
+]

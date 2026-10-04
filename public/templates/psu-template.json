@@ -1,0 +1,18 @@
+{
+  "name": "ONGC",
+  "fullName": "Oil and Natural Gas Corporation Limited",
+  "logoUrl": "https://example.com/path/to/ongc-logo.png",
+  "sector": "Navratna",
+  "description": "India’s largest oil and gas exploration and production company, offering diverse opportunities in upstream, midstream, and downstream operations.",
+  "packageMinLpa": "8",
+  "packageMaxLpa": "18",
+  "gateCutoff": "650",
+  "bondYears": "3",
+  "headquarters": "Dehradun, Uttarakhand",
+  "recruitmentMode": "GATE Score + Interview",
+  "eligibleBranches": "Chemical Engineering, Mechanical Engineering, Petroleum Engineering",
+  "websiteUrl": "https://www.ongcindia.com",
+  "applyUrl": "https://careers.ongcindia.com/apply",
+  "isFeatured": true,
+  "status": "draft"
+}

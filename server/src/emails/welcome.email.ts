@@ -24,7 +24,7 @@ export function getWelcomeEmailTemplate(name: string) {
                 <td style="padding: 40px; color: #495057; line-height: 1.6; font-size: 16px;">
                   <h2 style="margin: 0 0 20px 0; font-size: 20px; color: #212529; font-weight: 600;">Welcome, ${name}!</h2>
                   <p style="margin: 0 0 20px 0;">We are thrilled to welcome you to <strong>ChemEng Portal</strong>—the premier technical ecosystem engineered explicitly for Chemical Engineering students, researchers, and core domain industry professionals.</p>
-                  <p style="margin: 0 0 30px 0;">Your account is ready. Jump in to explore active public sector undertaking (PSU) vacancy trackers, benchmark GATE preparation requirements, participate in ongoing research groups, and catalog your simulation projects.</p>
+                  <p style="margin: 0 0 30px 0;">Your account is ready. Jump in to explore active organisation vacancy trackers, benchmark GATE preparation requirements, participate in ongoing research groups, and catalog your simulation projects.</p>
                   <table border="0" cellpadding="0" cellspacing="0" width="100%">
                     <tr>
                       <td align="center" style="padding-bottom: 10px;">

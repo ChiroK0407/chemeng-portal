@@ -1,0 +1,13 @@
+{
+  "title": "Advanced Membrane Separation Workshop",
+  "description": "A technical deep‑dive into membrane separation processes, covering design principles, simulation workflows, and industrial applications.",
+  "content": "Full agenda and session details will be provided here. Include speaker bios, session abstracts, and any pre‑reading material.",
+  "coverImage": "https://example.com/path/to/workshop-cover.jpg",
+  "venue": "Chemical Engineering Auditorium, IIT Kharagpur",
+  "isOnline": false,
+  "meetingUrl": "",
+  "organizerName": "ChELL Student Chapter",
+  "startsAt": "2026-11-15T09:00:00",
+  "endsAt": "2026-11-15T17:00:00",
+  "status": "upcoming"
+}

@@ -7,10 +7,11 @@ import { Textarea } from '../../../components/ui/Textarea';
 import { Select } from '../../../components/ui/Select';
 import { Spinner } from '../../../components/ui/Spinner';
 import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { JsonUploadPrefill } from '../../../components/admin/JsonUploadPrefill';
 
 const emptyForm = {
   fullName: '', roleTitle: '', category: 'current', branch: '', bio: '',
-  photoUrl: '', linkedinUrl: '', isFeatured: false, status: 'published',
+  photoUrl: '', linkedinUrl: '', isFeatured: false, status: 'published', rollNumber: '',
 };
 
 export default function MembersPanel() {
@@ -50,7 +51,7 @@ export default function MembersPanel() {
     setForm({
       fullName: m.full_name, roleTitle: m.role_title || '', category: m.category, branch: m.branch || '',
       bio: m.bio || '', photoUrl: m.photo_url || '', linkedinUrl: m.linkedin_url || '',
-      isFeatured: m.is_featured, status: m.status,
+      isFeatured: m.is_featured, status: m.status, rollNumber: m.roll_number || '',
     });
     setEditingId(m.id);
     setShowForm(true);
@@ -74,6 +75,11 @@ export default function MembersPanel() {
             <h3 className="font-bold text-sm">{editingId ? 'Edit Member' : 'New Member'}</h3>
             <button type="button" onClick={resetForm}><X className="w-4 h-4 text-surface-400" /></button>
           </div>
+          <JsonUploadPrefill
+            templateUrl="/templates/member-template.json"
+            onLoad={(data) => setForm((prev) => ({ ...prev, ...data }))}
+          />
+
           <Input label="Full name" required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
           <Input label="Role / title (e.g. 'Process Engineer, IOCL')" value={form.roleTitle} onChange={(e) => setForm({ ...form, roleTitle: e.target.value })} />
           <Select
@@ -82,6 +88,14 @@ export default function MembersPanel() {
             onChange={(e) => setForm({ ...form, category: e.target.value })}
             options={[{ value: 'current', label: 'Current student' }, { value: 'alumni', label: 'Alumni' }]}
           />
+          {form.category === 'current' && (
+            <Input
+              label="Roll number (12 digits)"
+              value={form.rollNumber}
+              maxLength={12}
+              onChange={(e) => setForm({ ...form, rollNumber: e.target.value.replace(/\D/g, '') })}
+            />
+          )}
           <Input label="Branch" value={form.branch} onChange={(e) => setForm({ ...form, branch: e.target.value })} />
           <Textarea label="Bio" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
           <Input label="Photo URL" value={form.photoUrl} onChange={(e) => setForm({ ...form, photoUrl: e.target.value })} />
@@ -111,7 +125,9 @@ export default function MembersPanel() {
           <div key={m.id} className="flex items-center justify-between bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-xl px-4 py-3">
             <div>
               <p className="font-semibold text-sm text-surface-900 dark:text-white">{m.full_name}{m.is_featured ? ' ⭐' : ''}</p>
-              <p className="text-xs text-surface-400">{m.category} · <span className={m.status === 'published' ? 'text-green-600' : 'text-amber-600'}>{m.status}</span></p>
+              <p className="text-xs text-surface-400">
+                {m.category}{m.roll_number ? ` · ${m.roll_number}` : ''} · <span className={m.status === 'published' ? 'text-green-600' : 'text-amber-600'}>{m.status}</span>
+              </p>
             </div>
             <div className="flex gap-2">
               <button onClick={() => startEdit(m)} className="p-2 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg"><Pencil className="w-4 h-4 text-surface-500" /></button>

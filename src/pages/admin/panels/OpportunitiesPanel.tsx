@@ -7,6 +7,7 @@ import { Textarea } from '../../../components/ui/Textarea';
 import { Select } from '../../../components/ui/Select';
 import { Spinner } from '../../../components/ui/Spinner';
 import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { JsonUploadPrefill } from '../../../components/admin/JsonUploadPrefill';
 
 const emptyForm = {
   title: '', company: '', description: '', type: 'internship', location: '',
@@ -75,6 +76,11 @@ export default function OpportunitiesPanel() {
             <h3 className="font-bold text-sm">{editingId ? 'Edit Opportunity' : 'New Opportunity'}</h3>
             <button type="button" onClick={resetForm}><X className="w-4 h-4 text-surface-400" /></button>
           </div>
+          <JsonUploadPrefill
+            templateUrl="/templates/opportunity-template.json"
+            onLoad={(data) => setForm((prev) => ({ ...prev, ...data }))}
+          />
+
           <Input label="Title" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
           <Input label="Company" required value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
           <Textarea label="Description" required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />

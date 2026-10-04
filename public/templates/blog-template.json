@@ -1,0 +1,8 @@
+{
+  "title": "How Distillation Column Design Actually Works",
+  "content": "Write the full blog body here. Markdown is fine if the blog renderer supports it -- check BlogDetailPage.tsx to confirm before relying on markdown syntax.",
+  "coverImage": "https://example.com/path/to/cover-image.jpg",
+  "authorName": "Your Name",
+  "tags": ["distillation", "process-design", "equipment"],
+  "status": "draft"
+}

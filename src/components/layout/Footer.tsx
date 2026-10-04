@@ -6,7 +6,7 @@ const LINKS = [
   {
     title: 'Explore',
     links: [
-      ['PSU Explorer',   '/psu'],
+      ['Organisation Explorer', '/organisations'],
       ['Projects',       '/projects'],
       ['Opportunities',  '/opportunities'],
       ['Resources',      '/resources'],
@@ -37,7 +37,16 @@ export function Footer() {
 
         <div className="col-span-2 md:col-span-1">
           <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg mb-4">
-            <FlaskConical className="w-5 h-5 text-primary-600" />
+            <img
+              src="/logo.svg"
+              alt={APP_NAME}
+              className="w-5 h-5 object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+                e.currentTarget.nextElementSibling?.classList.remove('hidden')
+              }}
+            />
+            <FlaskConical className="w-5 h-5 text-primary-600 hidden" />
             <span className="text-gradient">{APP_NAME}</span>
           </Link>
           <p className="text-sm text-surface-500 dark:text-surface-400 leading-relaxed">

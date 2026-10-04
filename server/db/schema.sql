@@ -1,6 +1,7 @@
--- ChELL Portal — Stage 1 schema (raw SQL, no ORM)
--- Scope: only what's needed to launch — public content + single admin gate.
--- Deferred for later: full user accounts, PSU, events/RSVP, resources, bookmarks.
+-- ChELL Portal — full schema (raw SQL, no ORM)
+-- For a FRESH database only. If your database already has the first five
+-- tables, use migration_002_psu_events_resources.sql instead — running
+-- this whole file again will fail on "relation already exists".
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto"; -- for gen_random_uuid()
 
@@ -11,7 +12,7 @@ CREATE TABLE blogs (
   slug           TEXT NOT NULL UNIQUE,
   content        TEXT NOT NULL,
   cover_image    TEXT,
-  author_name    TEXT NOT NULL,              -- plain text for now, no user table yet
+  author_name    TEXT NOT NULL,
   tags           TEXT[] DEFAULT '{}',
   status         TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
   read_time_min  INTEGER DEFAULT 1,
@@ -45,7 +46,7 @@ CREATE INDEX idx_opportunities_status ON opportunities(status);
 CREATE TABLE members (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   full_name      TEXT NOT NULL,
-  role_title     TEXT,                        -- e.g. "Process Engineer, IOCL" / "Final Year, ChemEng"
+  role_title     TEXT,
   category       TEXT NOT NULL DEFAULT 'current' CHECK (category IN ('current', 'alumni')),
   branch         TEXT,
   bio            TEXT,
@@ -74,7 +75,9 @@ CREATE TABLE projects (
 );
 CREATE INDEX idx_projects_status ON projects(status);
 
--- ── Notifications ─────────────────────────────────────────────
+-- ── Notifications (backend only at this stage — not wired to any
+--    public UI, since real per-user targeting needs the login system
+--    this project has deferred) ────────────────────────────────
 CREATE TABLE notifications (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title          TEXT NOT NULL,
@@ -84,3 +87,68 @@ CREATE TABLE notifications (
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX idx_notifications_active ON notifications(is_active, created_at DESC);
+
+-- ── PSUs (Public Sector Undertakings — recruiter directory) ────
+CREATE TABLE psus (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name              TEXT NOT NULL,
+  full_name         TEXT,
+  slug              TEXT NOT NULL UNIQUE,
+  logo_url          TEXT,
+  sector            TEXT,
+  description       TEXT,
+  package_min_lpa   NUMERIC,
+  package_max_lpa   NUMERIC,
+  gate_cutoff       TEXT,
+  bond_years        INTEGER,
+  headquarters      TEXT,
+  recruitment_mode  TEXT,
+  eligible_branches TEXT[] DEFAULT '{}',
+  website_url       TEXT,
+  apply_url         TEXT,
+  is_featured       BOOLEAN NOT NULL DEFAULT false,
+  status            TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_psus_status ON psus(status);
+CREATE INDEX idx_psus_sector ON psus(sector);
+
+-- ── Events ──────────────────────────────────────────────────────
+CREATE TABLE events (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title          TEXT NOT NULL,
+  slug           TEXT NOT NULL UNIQUE,
+  description    TEXT,
+  content        TEXT,
+  cover_image    TEXT,
+  venue          TEXT,
+  is_online      BOOLEAN NOT NULL DEFAULT false,
+  meeting_url    TEXT,
+  organizer_name TEXT,
+  starts_at      TIMESTAMPTZ NOT NULL,
+  ends_at        TIMESTAMPTZ,
+  status         TEXT NOT NULL DEFAULT 'upcoming' CHECK (status IN ('upcoming', 'ongoing', 'completed', 'cancelled')),
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_events_status ON events(status);
+CREATE INDEX idx_events_starts_at ON events(starts_at);
+
+-- ── Resources ─────────────────────────────────────────────────
+CREATE TABLE resources (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title        TEXT NOT NULL,
+  description  TEXT,
+  type         TEXT NOT NULL DEFAULT 'link' CHECK (type IN ('pdf', 'video', 'book', 'notes', 'link')),
+  subject      TEXT,
+  semester     INTEGER,
+  url          TEXT NOT NULL,
+  uploader_name TEXT,
+  downloads    INTEGER NOT NULL DEFAULT 0,
+  status       TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_resources_status ON resources(status);
+CREATE INDEX idx_resources_type ON resources(type);

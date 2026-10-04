@@ -1,16 +1,132 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { motion, Variants } from 'framer-motion';
+import { motion, Variants, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/axios';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { APP_NAME } from '@/utils/constants';
 import { 
   Users, Briefcase, Calendar, BookOpen, 
-  MapPin, Award, ExternalLink, ArrowRight 
+  MapPin, Award, ExternalLink, ArrowRight,
+  Factory, FolderKanban, HelpCircle, Library
 } from 'lucide-react';
+
+// Static, curated showcase entries for the homepage hero. Deliberately
+// static (not pulled from live content) per the redesign brief — these
+// represent the *sections* of the site, not any specific post/listing.
+// Drop matching image files into /public/images/showcase/ using these
+// exact filenames; nothing else needs to change once they're in place.
+const SHOWCASE_ITEMS = [
+  { label: 'Organisations', href: '/organisations', image: '/images/showcase/organisations.jpg', icon: Factory },
+  { label: 'Projects',      href: '/projects',       image: '/images/showcase/projects.jpg',      icon: FolderKanban },
+  { label: 'Blogs',         href: '/blogs',          image: '/images/showcase/blogs.jpg',         icon: BookOpen },
+  { label: 'Opportunities', href: '/opportunities',  image: '/images/showcase/opportunities.jpg', icon: Briefcase },
+  { label: 'Events',        href: '/events',         image: '/images/showcase/events.jpg',        icon: Calendar },
+  { label: 'Quizzes',       href: '/quizzes',        image: '/images/showcase/quizzes.jpg',        icon: HelpCircle },
+  { label: 'Members',       href: '/members',        image: '/images/showcase/members.jpg',       icon: Users },
+  { label: 'Resources',     href: '/resources',      image: '/images/showcase/resources.jpg',     icon: Library },
+] as const;
+
+const ROTATE_INTERVAL_MS = 5000;
+
+// Desktop hero panel: crossfades through SHOWCASE_ITEMS automatically.
+// No manual prev/next controls (not requested) — but each panel is a
+// real link, and clicks are only accepted once a panel has fully
+// settled (isSettled), so an in-flight fade can't be mistaken for a
+// stable, clickable panel.
+function SectionShowcase() {
+  const [index, setIndex] = useState(0);
+  const [isSettled, setIsSettled] = useState(false);
+
+  useEffect(() => {
+    setIsSettled(false);
+    const settleTimer = setTimeout(() => setIsSettled(true), 400); // matches the fade duration below
+    const rotateTimer = setInterval(() => {
+      setIndex((i) => (i + 1) % SHOWCASE_ITEMS.length);
+    }, ROTATE_INTERVAL_MS);
+    return () => {
+      clearTimeout(settleTimer);
+      clearInterval(rotateTimer);
+    };
+  }, [index]);
+
+  const current = SHOWCASE_ITEMS[index];
+
+  return (
+    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-surface-200 dark:border-surface-800">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={current.label}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          className="absolute inset-0"
+        >
+          <Link
+            to={current.href}
+            aria-label={`Go to ${current.label}`}
+            // A non-settled panel is mid-fade — ignoring clicks here
+            // prevents landing on the wrong section from a click that
+            // registered a split second before the crossfade finished.
+            onClick={(e) => { if (!isSettled) e.preventDefault(); }}
+            className={isSettled ? 'cursor-pointer' : 'cursor-default'}
+          >
+            <img
+              src={current.image}
+              alt={current.label}
+              className="w-full h-full object-cover"
+              onError={(e) => { e.currentTarget.style.opacity = '0'; }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-5 flex items-center gap-2">
+              <current.icon className="w-5 h-5 text-white" />
+              <span className="text-white font-semibold text-lg">{current.label}</span>
+            </div>
+          </Link>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Purely visual position indicator — not interactive, matches
+          "rotation does not need to be interactive". */}
+      <div className="absolute top-4 right-4 flex gap-1.5">
+        {SHOWCASE_ITEMS.map((item, i) => (
+          <span
+            key={item.label}
+            className={`w-1.5 h-1.5 rounded-full transition-colors ${
+              i === index ? 'bg-white' : 'bg-white/40'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Mobile alternative to the rotating showcase — see the note at the
+// call site in the hero for why: a timed auto-rotation is easy to miss
+// and fiddly to tap accurately at phone width, so mobile instead gets
+// every section visible and tappable at once, no waiting required.
+function SectionGrid() {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      {SHOWCASE_ITEMS.map((item) => (
+        <Link
+          key={item.label}
+          to={item.href}
+          className="flex flex-col items-center justify-center gap-2 py-6 rounded-xl border border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 text-surface-700 dark:text-surface-300 hover:border-primary-400 transition-colors"
+        >
+          <item.icon className="w-6 h-6 text-primary-600" />
+          <span className="text-sm font-medium">{item.label}</span>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -33,18 +149,10 @@ export default function HomePage() {
   const { user } = useAuth();
 
   // ── TanStack Query State Data Hydration Tier ────────────────────
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['homeStats'],
-    queryFn: async () => {
-      const res = await api.get('/admin/stats');
-      return res.data?.data || res.data;
-    }
-  });
-
-  const { data: psus, isLoading: psusLoading } = useQuery({
+  const { data: organisations, isLoading: organisationsLoading } = useQuery({
     queryKey: ['featuredPsus'],
     queryFn: async () => {
-      const res = await api.get('/psus?isFeatured=true&limit=6');
+      const res = await api.get('/organisations?isFeatured=true&limit=6');
       return res.data?.data || res.data;
     }
   });
@@ -76,128 +184,122 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-950 pt-24 overflow-x-hidden">
 
-      {/* 🧭 SECTION 1: HERO CONTAINER SECTION */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 bg-grid-pattern overflow-hidden">
+      {/* 🧭 SECTION 1: HERO — two columns on desktop (left: brand copy,
+          right: auto-rotating static showcase of site sections). On
+          mobile the showcase is replaced by a compact link grid instead
+          of trying to force the same layout into a narrow screen —
+          see the SectionGrid fallback below. */}
+      <section className="relative py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-grid-pattern overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-surface-50 dark:to-surface-950 pointer-events-none" />
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="text-4xl sm:text-6xl font-display font-extrabold text-surface-900 dark:text-white tracking-tight leading-tight"
-          >
-            <span className="text-gradient">The Engineering Ecosystem</span> <br />
-            for ChemE Professionals
-          </motion.h1>
+        <div className="max-w-7xl mx-auto relative z-10 grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
 
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="mt-6 text-lg sm:text-xl text-surface-500 dark:text-surface-400 max-w-3xl mx-auto leading-relaxed"
-          >
-            Connect with top-tier public sector undertakings, showcase core chemical process simulations, track industry placement streams, and grow alongside leading academic and industry operators.
-          </motion.p>
+          {/* ── Left: brand + existing landing copy ─────────────── */}
+          <div className="text-center lg:text-left">
+            <img
+              src="/logo.svg"
+              alt={`${APP_NAME} logo`}
+              className="w-32 h-32 sm:w-56 sm:h-56 object-contain mx-auto lg:mx-0 mb-5"
+            />
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-surface-900 dark:text-white tracking-tight leading-tight"
+            >
+              <span className="text-gradient">{APP_NAME}</span>
+            </motion.h1>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="mt-10 flex flex-wrap justify-center gap-4"
-          >
-            {/* 💡 FIXED: Removed asChild, wrapped Button element directly inside Link */}
-            <Link to="/psu">
-              <Button variant="primary" size="lg" className="rounded-xl shadow-sm">
-                Explore PSUs
-              </Button>
-            </Link>
-            {!user && (
-              <Link to="/auth/signup">
-                <Button variant="outline" size="lg" className="rounded-xl">
-                  Join the Community
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="mt-6 text-lg sm:text-xl text-surface-500 dark:text-surface-400 max-w-xl mx-auto lg:mx-0 leading-relaxed"
+            >
+              Gain knowledge about top-tier public sector undertakings, showcase core chemical process simulations, track industry placement streams, and grow alongside leading academic and industry operators.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="mt-10 flex flex-wrap justify-center lg:justify-start gap-4"
+            >
+              <Link to="/organisations">
+                <Button variant="primary" size="lg" className="rounded-xl shadow-sm">
+                  Explore Organisations
                 </Button>
               </Link>
-            )}
-          </motion.div>
+              <Link to="/quizzes">
+                <Button variant="primary" size="lg" className="rounded-xl shadow-sm">
+                  Take Quizzes
+                </Button>
+              </Link>
+              {!user && (
+                <Link to="/auth/signup">
+                  <Button variant="outline" size="lg" className="rounded-xl">
+                    Join the Community
+                  </Button>
+                </Link>
+              )}
+            </motion.div>
+          </div>
 
-          {/* 📊 Core Platform System Analytics Stats Bar Dashboard */}
-          <div className="mt-20 max-w-4xl mx-auto border border-surface-200 dark:border-surface-800 bg-white/70 dark:bg-surface-900/50 backdrop-blur-md rounded-2xl p-6 sm:p-8 shadow-sm">
-            {statsLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 animate-pulse">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="space-y-2 text-center">
-                    <div className="h-8 bg-surface-200 dark:bg-surface-800 rounded-md w-1/2 mx-auto" />
-                    <div className="h-4 bg-surface-100 dark:bg-surface-800 rounded-md w-3/4 mx-auto" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 division-x division-surface-100 dark:division-surface-800">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-surface-900 dark:text-white">{stats?.totalMembers || 0}</p>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-surface-400 mt-1">Members</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-surface-900 dark:text-white">{stats?.totalPsus || 0}</p>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-surface-400 mt-1">PSUs Listed</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-surface-900 dark:text-white">{stats?.totalProjects || 0}</p>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-surface-400 mt-1">Projects</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-surface-900 dark:text-white">{stats?.totalOpportunities || 0}</p>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-surface-400 mt-1">Openings</p>
-                </div>
-              </div>
-            )}
+          {/* ── Right (desktop only): rotating section showcase ──── */}
+          <div className="hidden lg:block">
+            <SectionShowcase />
+          </div>
+
+          {/* ── Mobile-only alternative: compact link grid instead of
+              the rotating showcase — a timed auto-rotation is easy to
+              miss and awkward to tap accurately on a small screen, so
+              mobile gets all sections visible and tappable at once. ── */}
+          <div className="lg:hidden">
+            <SectionGrid />
           </div>
         </div>
       </section>
 
-      {/* 🏢 SECTION 2: FEATURED PSUs GRID SECTION */}
+
+      {/* 🏢 SECTION 2: FEATURED ORGANISATIONS GRID SECTION */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex justify-between items-end mb-8">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-surface-900 dark:text-white">Top PSUs for Chemical Engineers</h2>
-            <p className="text-sm text-surface-500 mt-1">Direct corporate channels mapped through valid GATE performance score requirements.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-surface-900 dark:text-white">Top Organisations for Chemical Engineers</h2>
+            <p className="text-sm text-surface-500 mt-1">Government and corporate employers, mapped by GATE requirement and eligibility.</p>
           </div>
-          {/* 💡 FIXED Code conflict line 154: Adjusted breakpoints to eliminate simultaneous flex/hidden assignments */}
-          <Link to="/psu" className="text-sm font-semibold text-[#1a63ef] hover:underline items-center gap-1 hidden sm:inline-flex">
-            View all PSUs <ArrowRight className="w-4 h-4" />
+          <Link to="/organisations" className="text-sm font-semibold text-[#1a63ef] hover:underline items-center gap-1 hidden sm:inline-flex">
+            View all Organisations <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
-        {psusLoading ? (
+        {organisationsLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
             {[...Array(3)].map((_, i) => <div key={i} className="h-64 bg-surface-200 dark:bg-surface-800 rounded-2xl" />)}
           </div>
-        ) : !psus || psus.length === 0 ? (
-          <EmptyState title="No Featured PSUs Available" description="There are no specific public utilities configured as featured profiles inside the instance context right now." />
+        ) : !organisations || organisations.length === 0 ? (
+          <EmptyState title="No Featured Organisations Available" description="There are no organisations configured as featured profiles right now." />
         ) : (
           <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {psus.map((psu: any) => (
-              <motion.div key={psu.id} variants={fadeInUp}>
+            {organisations.map((org: any) => (
+              <motion.div key={org.id} variants={fadeInUp}>
                 <Card className="p-6 h-full flex flex-col justify-between hover:shadow-md transition-shadow dark:bg-surface-900 border-surface-200 dark:border-surface-800 rounded-2xl">
                   <div>
                     <div className="flex items-center justify-between gap-4 mb-4">
                       <div className="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-950/40 flex items-center justify-center font-bold text-lg text-primary-700 dark:text-primary-400 flex-shrink-0">
-                        {psu.logoUrl ? <img src={psu.logoUrl} alt={psu.name} className="w-full h-full object-contain" /> : psu.name.substring(0, 2).toUpperCase()}
+                        {org.logo_url ? <img src={org.logo_url} alt={org.name} className="w-full h-full object-contain" /> : org.name.substring(0, 2).toUpperCase()}
                       </div>
-                      {/* 💡 FIXED: Dropped old variants parameter mapping to safeguard custom Badge file declarations */}
                       <Badge className="text-[10px] uppercase font-bold tracking-wider rounded-md px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/40">
-                        {psu.sector}
+                        {org.org_type}
                       </Badge>
                     </div>
-                    <h3 className="font-bold text-lg text-surface-900 dark:text-white line-clamp-1">{psu.name}</h3>
-                    <p className="text-xs text-surface-400 font-medium mt-0.5">{psu.headquarters || 'Headquarters Confidential'}</p>
+                    <h3 className="font-bold text-lg text-surface-900 dark:text-white line-clamp-1">{org.name}</h3>
+                    <p className="text-xs text-surface-400 font-medium mt-0.5">{org.headquarters || 'Headquarters Confidential'}</p>
+                    {/* CTC Range intentionally removed -- salary is never disclosed, government or corporate. */}
                     <div className="mt-4 space-y-2 border-t border-surface-100 dark:border-surface-800/60 pt-3">
-                      <div className="flex justify-between text-xs font-medium"><span className="text-surface-400">CTC Range:</span><span className="text-surface-700 dark:text-surface-200 font-semibold">₹{psu.packageMinLpa || 'N/A'} - ₹{psu.packageMaxLpa || 'N/A'} LPA</span></div>
-                      {/* 💡 FIXED: Replaced unassignable variant strings with clean inline class layouts */}
                       <div className="flex justify-between text-xs font-medium">
                         <span className="text-surface-400">GATE Criteria:</span>
                         <span>
-                          {psu.gateRequired ? (
+                          {org.gate_cutoff ? (
                             <span className="text-[10px] px-2 py-0.5 font-bold rounded bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30">Required</span>
                           ) : (
                             <span className="text-[10px] px-2 py-0.5 font-bold rounded bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/30">Direct</span>
@@ -206,8 +308,7 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-                  {/* 💡 FIXED: Removed asChild from footer layout button links */}
-                  <Link to={`/psu/${psu.slug}`} className="w-full mt-6">
+                  <Link to={`/organisations/${org.slug}`} className="w-full mt-6">
                     <Button variant="outline" className="w-full rounded-xl text-xs font-semibold">
                       View Details
                     </Button>

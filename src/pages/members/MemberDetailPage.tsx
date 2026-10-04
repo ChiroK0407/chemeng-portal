@@ -36,7 +36,12 @@ export default function MemberDetailPage() {
             </div>
           )}
           <div className="flex-1 space-y-1.5">
-            <h1 className="text-2xl md:text-3xl font-bold text-surface-900 dark:text-white leading-tight">{member.full_name}</h1>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <h1 className="text-2xl md:text-3xl font-bold text-surface-900 dark:text-white leading-tight">{member.full_name}</h1>
+              <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30">
+                {member.category === 'alumni' ? 'Alumni' : 'Current Student'}
+              </span>
+            </div>
             {member.role_title && <p className="text-sm font-semibold text-surface-600 dark:text-surface-300">{member.role_title}</p>}
             {member.branch && (
               <p className="text-xs font-medium text-surface-400 flex items-center justify-center sm:justify-start gap-1">

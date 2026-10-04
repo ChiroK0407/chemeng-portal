@@ -9,7 +9,7 @@ import { Trash2, BookmarkCheck, ArrowUpRight } from 'lucide-react';
 
 const ENTITY_TABS = [
   { label: 'All Saved', value: 'all' },
-  { label: 'PSU Profiles', value: 'psu' },
+  { label: 'Organisation Profiles', value: 'organisation' },
   { label: 'Research Projects', value: 'project' },
   { label: 'Articles & Blogs', value: 'blog' },
   { label: 'Career Opportunities', value: 'opportunity' },

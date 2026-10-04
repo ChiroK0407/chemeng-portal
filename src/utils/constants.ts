@@ -1,4 +1,4 @@
-export const APP_NAME = import.meta.env.VITE_APP_NAME ?? 'ChemEng Portal'
+export const APP_NAME = import.meta.env.VITE_APP_NAME ?? 'ChELL Portal'
 export const APP_URL  = import.meta.env.VITE_APP_URL  ?? 'http://localhost:5173'
 export const IS_DEV   = import.meta.env.DEV
 export const IS_PROD  = import.meta.env.PROD

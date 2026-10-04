@@ -1,0 +1,16 @@
+{
+  "title": "Fluid Mechanics Quiz 1",
+  "description": "Test your understanding of fluid statics, Bernoulli's equation, and pipe flow.",
+  "category": "Fluid Mechanics",
+  "difficulty": "Intermediate",
+  "passingScore": 70,
+  "negativeMarking": 0.25,
+  "questions": [
+    {
+      "questionText": "What is the unit of dynamic viscosity?",
+      "options": ["Pa·s", "m²/s", "kg/m", "N/m²"],
+      "correctOptionIndex": 0,
+      "explanation": "Dynamic viscosity has units of Pascal-seconds (Pa·s) or kg/(m·s)."
+    }
+  ]
+}
