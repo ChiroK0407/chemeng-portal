@@ -37,4 +37,4 @@ json_files/
 *.log
 .DS_Store
 ZIP/
-client_secret_926427042635-dgcggv196q6uldqkfvlj2rs52q6qgtip.apps.googleusercontent.com.json/client_secret_*.json
+/client_secret_*.json

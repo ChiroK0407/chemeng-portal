@@ -20,7 +20,7 @@ const ROLL_NUMBER_PATTERN = /^[0-9]{12}$/
 const schema = z.object({
   full_name:        z.string().min(2, 'Name must be at least 2 characters'),
   stream:           z.literal('BChE'),
-  member_type:      z.enum(['student', 'alumni'], { errorMap: () => ({ message: 'Select student or alumni' }) }),
+  member_type:      z.enum(['student', 'alumni'], { message: 'Select student or alumni' }),
   roll_number:      z.string().optional(),
   email:            z.string().email('Enter a valid email'),
   password:         z.string().min(8, 'Password must be at least 8 characters'),
