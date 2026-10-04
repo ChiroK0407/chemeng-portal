@@ -36,7 +36,14 @@ export function userCookieOptions(): CookieOptions {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    // 'none' is required for the cookie to survive a cross-site request
+    // at all -- Vercel (frontend) and Render (backend) are different
+    // domains, so this is always cross-site in production. 'none'
+    // requires secure:true (browsers reject it otherwise), which is
+    // already true here since both flip together on NODE_ENV. Locally,
+    // 'lax' is kept since localhost:5173 -> localhost:4000 doesn't need
+    // 'none', and 'none' without https would be rejected by the browser.
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     domain,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/',
