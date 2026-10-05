@@ -67,16 +67,30 @@ export interface StartAttemptResponse {
   question_deadline: string; // ISO timestamp, server-computed
 }
 
-export interface AnswerResponse {
-  correct: boolean;
-  completed: boolean;
-  next_question?: AttemptQuestion;
-  next_question_deadline?: string;
-  final_score?: number;
-  total_points?: number;
-  correct_count?: number;     // added
-  total_questions?: number;   // added
+export interface AttemptReviewQuestion {
+  question_id: string;
+  question_text: string;
+  selected_option_text: string | null;
+  correct_option_text: string;
+  is_correct: boolean;
 }
+
+export type AnswerResponse =
+  | {
+      correct: boolean;
+      completed: false;
+      next_question: AttemptQuestion;
+      next_question_deadline: string;
+    }
+  | {
+      correct: boolean;
+      completed: true;
+      final_score: number;
+      total_points: number;
+      correct_count: number;
+      total_questions: number;
+      review: AttemptReviewQuestion[];
+    };
 
 export interface LeaderboardEntry {
   attempt_id: string;

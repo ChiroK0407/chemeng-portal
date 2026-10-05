@@ -256,6 +256,23 @@ export async function answerQuestion(req: Request, res: Response, next: NextFunc
         `SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = $1`,
         [attempt.quiz_id]
       );
+      const reviewResult = await pool.query(
+        `SELECT qq.id AS question_id, qq.question_text,
+                selected_option.option_text AS selected_option_text,
+                correct_option.option_text AS correct_option_text,
+                COALESCE(qa.is_correct, false) AS is_correct
+         FROM quiz_questions qq
+         LEFT JOIN quiz_answers qa
+           ON qa.question_id = qq.id AND qa.attempt_id = $1
+         LEFT JOIN quiz_options selected_option
+           ON selected_option.id = qa.selected_option_id
+          AND selected_option.question_id = qq.id
+         LEFT JOIN quiz_options correct_option
+           ON correct_option.question_id = qq.id AND correct_option.is_correct = true
+         WHERE qq.quiz_id = $2
+         ORDER BY qq.order_index`,
+        [attemptId, attempt.quiz_id]
+      );
       return res.json({
         correct: isCorrect,
         completed: true,
@@ -263,6 +280,7 @@ export async function answerQuestion(req: Request, res: Response, next: NextFunc
         total_points: finalScoreResult.rows[0].total_points,
         correct_count: parseInt(correctCountResult.rows[0].count, 10),
         total_questions: parseInt(totalQuestionsResult.rows[0].count, 10),
+        review: reviewResult.rows,
       });
     }
 
