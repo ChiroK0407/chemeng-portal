@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -38,6 +38,8 @@ type FormData = z.infer<typeof schema>
 export default function SignupPage() {
   const { signUp } = useAuth()
   const navigate   = useNavigate()
+  const location   = useLocation()
+  const fromPath = (location.state as { from?: string } | null)?.from ?? '/'
 
   const {
     register,
@@ -86,7 +88,7 @@ export default function SignupPage() {
         // silently didn't go through (e.g. a transient network blip).
       }
       toast.success('Account created! Please check your email to confirm.')
-      navigate('/auth/login')
+      navigate('/auth/login', { state: { from: fromPath } })
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Signup failed'
       toast.error(message)
@@ -192,6 +194,7 @@ export default function SignupPage() {
 
             {/* ── Step 2: both sign-up paths, locked until step 1 is valid ── */}
             <GoogleSignInButton
+              redirectTo={fromPath}
               disabled={!isProfileComplete}
               onBeforeNavigate={cacheJoinDataBeforeGoogleRedirect}
             />

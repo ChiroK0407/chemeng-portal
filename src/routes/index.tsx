@@ -54,13 +54,13 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 // should require login while its parent listing/browsing page stays
 // public (quiz attempts today; opportunity applications, blog
 // commenting, etc. can reuse this the same way later). Remembers
-// where the user was headed via `state.from` so LoginPage can send
-// them back after signing in, instead of always landing on /dashboard.
+// where the user was headed via `state.from` so signup can preserve it
+// through account creation and return them after login.
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth()
   const location = useLocation()
   if (isLoading) return <PageSpinner />
-  if (!user)     return <Navigate to="/auth/login" state={{ from: location.pathname }} replace />
+  if (!user)     return <Navigate to="/auth/signup" state={{ from: location.pathname }} replace />
   return <>{children}</>
 }
 

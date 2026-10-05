@@ -34,6 +34,7 @@ export default function QuizAttemptPage() {
   const [openReviewIndex, setOpenReviewIndex] = useState<number | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [profileRequired, setProfileRequired] = useState(false);
   const answeredRef = useRef(false); // guards against double-submit (click + timeout both firing)
 
   useEffect(() => {
@@ -50,7 +51,12 @@ export default function QuizAttemptPage() {
         setDeadline(new Date(res.question_deadline).getTime());
         setStatuses(Array(res.question.total).fill('upcoming'));
       })
-      .catch((err) => setError(err?.response?.data?.message ?? 'Failed to start quiz'));
+      .catch((err) => {
+        if (err?.response?.data?.code === 'MEMBER_PROFILE_REQUIRED') {
+          setProfileRequired(true);
+        }
+        setError(err?.response?.data?.message ?? 'Failed to start quiz');
+      });
   }, [quizId]);
 
   useEffect(() => {
@@ -104,7 +110,17 @@ export default function QuizAttemptPage() {
   if (error) {
     return (
       <main className="min-h-screen bg-white dark:bg-surface-950 pt-24 pb-16 px-4 text-center">
-        <p className="text-red-600 dark:text-red-400">{error}</p>
+        <div className="mx-auto max-w-lg rounded-xl border border-red-200 bg-red-50 p-5 dark:border-red-900 dark:bg-red-950/30">
+          <p className="text-red-700 dark:text-red-300">{error}</p>
+          {profileRequired && (
+            <Link
+              to="/dashboard/profile"
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            >
+              Complete your profile
+            </Link>
+          )}
+        </div>
       </main>
     );
   }
